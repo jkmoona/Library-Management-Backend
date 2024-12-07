@@ -18,7 +18,7 @@ sequelize
     .catch((err) => console.error("Unable to connect to the database:", err));
 
 const userRoutes = require("./routes/userRoutes");
-const userRoutes = require("./routes/bookRoutes");
+const bookRoutes = require("./routes/bookRoutes");
 
 app.use("/users", userRoutes);
 app.use("/books", bookRoutes);
