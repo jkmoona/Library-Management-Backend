@@ -1,4 +1,7 @@
-const { User, BorrowedBook, Book } = require("../models");
+const User = require("../models/user");
+const Book = require("../models/book");
+const BorrowedBook = require("../models/borrowed_book");
+
 const userService = require("../services/userService");
 
 // Get all users
@@ -16,18 +19,20 @@ exports.getUsers = async (req, res) => {
 
 // Get user by id
 exports.getUser = async (req, res) => {
-    const userId = req.params.userId;
+    const user_id = req.params.user_id;
 
     try {
         // Find user by id
-        const user = await User.findByPk(userId);
+        const user = await User.findByPk(user_id);
         if (!user) {
-            return res.status(404).json({ message: "User not found!" });
+            return res
+                .status(404)
+                .json({ message: `User not found! id: ${user_id}` });
         }
 
         // Get borrowed books of the user
         const borrowedBooks = await BorrowedBook.findAll({
-            where: { userId },
+            where: { user_id },
             include: [
                 {
                     model: Book,
@@ -41,14 +46,14 @@ exports.getUser = async (req, res) => {
 
         // Seperate into past and present books
         borrowedBooks.forEach((borrowedBook) => {
-            if (borrowedBook.returnDate) {
+            if (borrowedBook.return_date) {
                 pastBooks.push({
-                    name: borrowedBook.Book.name,
-                    userScore: borrowedBook.userScore,
+                    name: borrowedBook.book.name,
+                    user_score: borrowedBook.user_score,
                 });
             } else {
                 presentBooks.push({
-                    name: borrowedBook.Book.name,
+                    name: borrowedBook.book.name,
                 });
             }
         });
@@ -78,17 +83,17 @@ exports.createUser = async (req, res) => {
 
 // Borrow book
 exports.borrowBook = async (req, res) => {
-    const { userId, bookId } = req.params;
+    const { user_id, book_id } = req.params;
 
     try {
         // Check if the user exists
-        const user = await User.findByPk(userId);
+        const user = await User.findByPk(user_id);
         if (!user) {
             return res.status(404).json({ message: "User not found!" });
         }
 
         // Check if the book exists
-        const book = await Book.findByPk(bookId);
+        const book = await Book.findByPk(book_id);
         if (!book) {
             return res.status(404).json({ message: "Book not found!" });
         }
@@ -96,12 +101,13 @@ exports.borrowBook = async (req, res) => {
         // Check if the book is already borrowed
         const existingBorrow = await BorrowedBook.findOne({
             where: {
-                bookId,
-                returnDate: null,
+                book_id,
+                return_date: null,
             },
         });
+
         if (existingBorrow) {
-            if (userId === existingBorrow.userId) {
+            if (user_id == existingBorrow.user_id) {
                 // The book is borrowed by the user
                 return res
                     .status(400)
@@ -116,13 +122,13 @@ exports.borrowBook = async (req, res) => {
 
         // Borrow the book
         await BorrowedBook.create({
-            userId,
-            bookId,
-            borrowDate: new Date(),
-            returnDate: null,
+            user_id,
+            book_id,
+            borrow_date: new Date(),
+            return_date: null,
         });
 
-        res.status(204);
+        res.status(204).json({ message: "Book borrowed successfully!" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -130,24 +136,24 @@ exports.borrowBook = async (req, res) => {
 
 // Return a book for a user
 exports.returnBook = async (req, res) => {
-    const { userId, bookId } = req.params;
+    const { user_id, book_id } = req.params;
     const score = req.body.score;
 
     try {
         // Check if the user exists
-        const user = await User.findByPk(userId);
+        const user = await User.findByPk(user_id);
         if (!user) return res.status(404).json({ message: "User not found" });
 
         // Check if the book exists
-        const book = await Book.findByPk(bookId);
+        const book = await Book.findByPk(book_id);
         if (!book) return res.status(404).json({ message: "Book not found" });
 
         // Find the borrowed book record
         const borrowedBook = await BorrowedBook.findOne({
             where: {
-                userId,
-                bookId,
-                returnDate: null,
+                user_id,
+                book_id,
+                return_date: null,
             },
         });
 
@@ -166,18 +172,18 @@ exports.returnBook = async (req, res) => {
         }
 
         // Update the borrowed book record
-        borrowedBook.returnDate = new Date();
-        borrowedBook.userScore = score;
+        borrowedBook.return_date = new Date();
+        borrowedBook.user_score = score;
         await borrowedBook.save();
 
         // Recalculate the average score for the book
-        const averageScore = await userService.calculateAverageScore(bookId);
+        const averageScore = await userService.calculateAverageScore(book_id);
 
         // Update the average score
         await book.update({ score: averageScore });
 
-        res.status(204);
+        res.status(204).json({ message: "Book returned successfully!" });
     } catch (error) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: error.message });
     }
 };

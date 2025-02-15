@@ -1,6 +1,7 @@
+"use strict";
 const { DataTypes } = require("sequelize");
 const db = require("../config/database");
-const BorrowedBook = require("./BorrowedBook");
+const BorrowedBook = require("./borrowed_book");
 
 const User = db.define("user", {
     id: {
@@ -14,7 +15,7 @@ const User = db.define("user", {
     },
 });
 
-User.hasMany(BorrowedBook, { foreignKey: "userId" });
-BorrowedBook.belongsTo(User, { foreignKey: "userId" });
+User.hasMany(BorrowedBook, { foreignKey: "user_id" });
+BorrowedBook.belongsTo(User, { foreignKey: "user_id" });
 
 module.exports = User;

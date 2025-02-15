@@ -1,16 +1,17 @@
+"use strict";
 const { DataTypes } = require("sequelize");
 const db = require("../config/database");
 
 const BorrowedBook = db.define("borrowed_book", {
-    userScore: {
+    user_score: {
         type: DataTypes.INTEGER,
         allowNull: true,
     },
-    borrowDate: {
+    borrow_date: {
         type: DataTypes.DATE,
         allowNull: false,
     },
-    returnDate: {
+    return_date: {
         type: DataTypes.DATE,
         allowNull: true,
     },

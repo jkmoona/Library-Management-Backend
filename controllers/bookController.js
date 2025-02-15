@@ -1,4 +1,4 @@
-const Book = require("../models/Book");
+const Book = require("../models/book");
 
 // Get all books
 exports.getBooks = async (req, res) => {
@@ -18,8 +18,8 @@ exports.getBooks = async (req, res) => {
 // Get book by id
 exports.getBook = async (req, res) => {
     try {
-        const bookId = req.params.bookId;
-        const book = await Book.findByPk(bookId);
+        const book_id = req.params.book_id;
+        const book = await Book.findByPk(book_id);
         if (!book) {
             return res.status(404).json({ message: "Book not found!" });
         }
@@ -37,8 +37,8 @@ exports.getBook = async (req, res) => {
 // Create book
 exports.createBook = async (req, res) => {
     try {
-        await Book.create({ name: req.body.name });
-        res.status(201);
+        const book = await Book.create({ name: req.body.name });
+        res.status(201).json(book);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

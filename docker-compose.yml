@@ -1,13 +1,43 @@
 services:
-  db:
+  node_db:
     image: postgres:latest
+    container_name: node_db
     environment:
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DB}
     ports:
-      - "5431:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - library-network
+    restart: always
+
+  node_server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: node_server
+    environment:
+      PG_DB: ${PG_DB}
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
+      PG_HOST: ${PG_HOST}
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - node_db
+    networks:
+      - library-network
+    command: npm start
+    restart: always
+
 volumes:
   postgres_data:
+
+
+networks:
+  library-network:

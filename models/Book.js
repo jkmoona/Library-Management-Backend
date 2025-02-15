@@ -1,6 +1,7 @@
-const { DataTypes } = require("sequelize");
+"use strict";
+const { Model, DataTypes } = require("sequelize");
 const db = require("../config/database");
-const BorrowedBook = require("./BorrowedBook");
+const BorrowedBook = require("./borrowed_book");
 
 const Book = db.define("book", {
     id: {
@@ -18,7 +19,7 @@ const Book = db.define("book", {
     },
 });
 
-Book.hasMany(BorrowedBook, { foreignKey: "bookId" });
-BorrowedBook.belongsTo(Book, { foreignKey: "bookId" });
+Book.hasMany(BorrowedBook, { foreignKey: "book_id" });
+BorrowedBook.belongsTo(Book, { foreignKey: "book_id" });
 
 module.exports = Book;

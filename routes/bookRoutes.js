@@ -3,10 +3,10 @@ const router = express.Router();
 const { createBook, getBooks, getBook } = require('../controllers/bookController');
 const { createBookValidator } = require('../validators/bookValidator');
 
-router.get('/books', getBooks);
+router.get('/', getBooks);
 
-router.get('/books/:bookId', getBook);
+router.get('/:book_id', getBook);
 
-router.post('/books', createBookValidator, createBook);
+router.post('/', createBookValidator, createBook);
 
 module.exports = router;

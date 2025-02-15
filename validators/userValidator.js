@@ -18,15 +18,15 @@ const createUserValidator = (req, res, next) => {
 
 const borrowBookValidator = (req, res, next) => {
     const schema = Joi.object({
-        bookId: Joi.number().integer().required().messages({
-            "number.base": '"bookId" must be a number',
-            "number.integer": '"bookId" must be an integer',
-            "any.required": '"bookId" is a required field',
+        book_id: Joi.number().integer().required().messages({
+            "number.base": '"book_id" must be a number',
+            "number.integer": '"book_id" must be an integer',
+            "any.required": '"book_id" is a required field',
         }),
-        userId: Joi.number().integer().required().messages({
-            "number.base": '"userId" must be a number',
-            "number.integer": '"userId" must be an integer',
-            "any.required": '"userId" is a required field',
+        user_id: Joi.number().integer().required().messages({
+            "number.base": '"user_id" must be a number',
+            "number.integer": '"user_id" must be an integer',
+            "any.required": '"user_id" is a required field',
         }),
     });
 
@@ -39,15 +39,15 @@ const borrowBookValidator = (req, res, next) => {
 
 const returnBookValidator = (req, res, next) => {
     const schema = Joi.object({
-        bookId: Joi.number().integer().required().messages({
-            "number.base": '"bookId" must be a number',
-            "number.integer": '"bookId" must be an integer',
-            "any.required": '"bookId" is a required field',
+        book_id: Joi.number().integer().required().messages({
+            "number.base": '"book_id" must be a number',
+            "number.integer": '"book_id" must be an integer',
+            "any.required": '"book_id" is a required field',
         }),
-        userId: Joi.number().integer().required().messages({
-            "number.base": '"userId" must be a number',
-            "number.integer": '"userId" must be an integer',
-            "any.required": '"userId" is a required field',
+        user_id: Joi.number().integer().required().messages({
+            "number.base": '"user_id" must be a number',
+            "number.integer": '"user_id" must be an integer',
+            "any.required": '"user_id" is a required field',
         }),
         score: Joi.number().min(1).max(10).required().messages({
             "number.base": '"score" must be a number',
@@ -57,7 +57,10 @@ const returnBookValidator = (req, res, next) => {
         }),
     });
 
-    const { error } = schema.validate(req.params);
+    const { error } = schema.validate({
+        ...req.params,
+        ...req.body,
+    });
     if (error) {
         return res.status(400).json({ error: error.details[0].message });
     }
